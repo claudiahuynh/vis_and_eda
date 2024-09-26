@@ -199,3 +199,186 @@ weather_df |>
     ## `geom_smooth()` using formula = 'y ~ x'
 
 ![](vis_1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+Scatterplots are less useful are data size grows. Geom_hex can show data
+density - makes it easier to look at data. placing color = “blue” inside
+ggplot will make it turn red because gg plot doesn’t have a variable
+called blue.
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(color = "blue")
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+\##Univariate plots
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram(position = "dodge")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_bin()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+How do we fix this?
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram(position = "dodge") + 
+  facet_grid(. ~ name)
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_bin()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+Make a density plot. Density plot is a smooth version of histogram.
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_density(alpha = .3)
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_density()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Make a boxplot.
+
+``` r
+weather_df |> 
+ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_boxplot()
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Make a violin plot. A little better than boxplots because it gives more
+insight into the distribution of data we’re looking at.
+
+``` r
+weather_df |> 
+  ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_violin()
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_ydensity()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+Make a ridge plot
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, y = name)) + 
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 1.41
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_density_ridges()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+Learning assessment
+
+Histogram
+
+``` r
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) + 
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 15 rows containing non-finite outside the scale range
+    ## (`stat_bin()`).
+
+![](vis_1_files/figure-gfm/histogram-1.png)<!-- -->
+
+Density plot
+
+``` r
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density()
+```
+
+    ## Warning: Removed 15 rows containing non-finite outside the scale range
+    ## (`stat_density()`).
+
+![](vis_1_files/figure-gfm/density-1.png)<!-- -->
+
+Violin
+
+``` r
+weather_df |> 
+  ggplot(aes(x = name, y = prcp, fill = name)) + 
+  geom_violin()
+```
+
+    ## Warning: Removed 15 rows containing non-finite outside the scale range
+    ## (`stat_ydensity()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+Ridge plot
+
+``` r
+weather_df |> 
+  ggplot(aes(x = prcp, y = name)) + 
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 9.22
+
+    ## Warning: Removed 15 rows containing non-finite outside the scale range
+    ## (`stat_density_ridges()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+weather_df |> 
+  filter(prcp > 0, prcp < 1000) |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = .3)
+```
+
+![](vis_1_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+\##Saving and embedding plots
+
+``` r
+ggp_weather = 
+weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name))+
+  geom_point()
+
+ggsave("ggp_weather.pdf", ggp_weather, width = 8, height = 6)
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).

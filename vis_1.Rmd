@@ -7,6 +7,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(ggridges)
 ```
  
 Import weather data 
@@ -100,9 +101,110 @@ weather_df |>
   geom_point(alpha = .3) + 
   geom_smooth(method = "lm", se = FALSE)
   
-
-
-
 ```
 
+Scatterplots are less useful are data size grows. Geom_hex can show data density - makes it easier to look at data. placing color = "blue" inside ggplot will make it turn red because gg plot doesn't have a variable called blue. 
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(color = "blue")
+  
+```
+
+##Univariate plots 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram(position = "dodge")
+```
+
+How do we fix this? 
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_histogram(position = "dodge") + 
+  facet_grid(. ~ name)
+```
+
+Make a density plot. Density plot is a smooth version of histogram. 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_density(alpha = .3)
+```
+
+Make a boxplot. 
+```{r}
+weather_df |> 
+ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_boxplot()
+```
+
+Make a violin plot. A little better than boxplots because it gives more insight into the distribution of data we're looking at. 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = name, y = tmin, fill = name)) + 
+  geom_violin()
+```
+
+
+Make a ridge plot  
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = name)) + 
+  geom_density_ridges()
+```
+
+Learning assessment 
+
+Histogram 
+```{r histogram}
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) + 
+  geom_histogram()
+```
+
+Density plot 
+```{r density}
+weather_df |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density()
+```
+
+Violin 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = name, y = prcp, fill = name)) + 
+  geom_violin()
+```
+
+Ridge plot 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = prcp, y = name)) + 
+  geom_density_ridges()
+```
+
+```{r}
+weather_df |> 
+  filter(prcp > 0, prcp < 1000) |> 
+  ggplot(aes(x = prcp, fill = name)) +
+  geom_density(alpha = .3)
+```
+
+##Saving and embedding plots 
+
+```{r}
+ggp_weather = 
+weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name))+
+  geom_point()
+
+ggsave("ggp_weather.pdf", ggp_weather, width = 8, height = 6)
+```
 
