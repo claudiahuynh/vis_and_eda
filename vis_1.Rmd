@@ -8,7 +8,9 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 ```
-
+ 
+Import weather data 
+ 
 ```{r weather}
 weather_df = 
   rnoaa::meteo_pull_monitors(
@@ -26,4 +28,81 @@ weather_df =
     tmax = tmax / 10) |>
   select(name, id, everything())
 ```
+
+Making the first plot
+
+```{r}
+ggplot(weather_df, aes(x = tmin, y = tmax))+
+  geom_point()
+```
+
+```{r}
+weather_df |> 
+ggplot(aes(x = tmin, y = tmax))+
+  geom_point()
+```
+
+```{r}
+ggp_weather_scatterplot = 
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax))+
+  geom_point()
+
+ggp_weather_scatterplot
+```
+
+#Make fancier plots
+
+geom_smooth gives a smooth line. (se = false) to hide standard error. 
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3, size = .8) +
+  geom_smooth(se = FALSE)
+```
+ WHere you place color = matters. See how color placed in geom_point is different. There's only one fitted smooth line instead of three. This is because placing color = name in ggplot is "global". 
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = .3, size = .8) +
+  geom_smooth(se = FALSE)
+```
+
+Faceting will separate the plots. Using facet_grid(. ~ name) will place everything (.) in the rows. Name will go to column. The panels are separated by name. 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3, size = .8) +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+
+```
+
+Let's make a somewhat more interesting scatterplot. Add another aesthetic size = so that the size of the points vary by precipitation. 
+```{r}
+weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name, size = prcp))+
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+  
+```
+
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  mutate(
+    tmin_f = (tmin*1.8) + 32,
+    tmax_f = (tmax*1.8) + 32
+  ) |> 
+  ggplot(aes(x = tmin_f, y = tmax_f)) +
+  geom_point(alpha = .3) + 
+  geom_smooth(method = "lm", se = FALSE)
+  
+
+
+
+```
+
 
