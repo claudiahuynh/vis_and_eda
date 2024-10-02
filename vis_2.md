@@ -118,3 +118,104 @@ weather_df |>
     ## (`geom_point()`).
 
 ![](vis_2_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+## Themes
+
+``` r
+ggp_scatterplot =
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  labs(
+    title = "Temperature Scatterplot",
+    x = "Minimum Temperature (C)",
+    y = "Maximum Temperature (C)",
+    color = "Location",
+    caption = "Weather data taken from rnoaa package for 3 stations"
+  ) + 
+  scale_color_hue(h = c(10,400)) +
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+    ## Scale for colour is already present.
+    ## Adding another scale for colour, which will replace the existing scale.
+
+``` r
+ggp_scatterplot +
+  theme(legend.position = "bottom")
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+Order matters. If you put theme bw after changing the legend, the graph
+will reset and the legend will be on the side.
+
+``` r
+ggp_scatterplot +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_2_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+ggthemes has multiple built in theme options.
+
+``` r
+ggp_scatterplot + 
+  theme(legend.position = "bottom") +
+  ggthemes::theme_excel()
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_2_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Learning assessment
+
+``` r
+  weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE)+
+labs(
+    title = "Temperature across time",
+    x = "Date",
+    y = "Maximum temperature (C)",
+    color = "Location",
+    caption = "Maximum temperature by date at three locations"
+  ) +
+    viridis::scale_color_viridis(discrete = TRUE) + 
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_smooth()`).
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_2_files/figure-gfm/learning_assessment-1.png)<!-- -->
+
+Extra bonus stuff in ggplot
+
+Use different datasets in different `geoms`
+
+``` r
+central_park_df = 
+  weather_df |> 
+  filter(name == "Cenral_Park_NY")
+
+molokai_df = 
+  weather_df |> 
+  filter(name == "Molokai_HI")
+```

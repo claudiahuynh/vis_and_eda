@@ -371,14 +371,29 @@ weather_df |>
 
 \##Saving and embedding plots
 
+Saving plots
+
 ``` r
 ggp_weather = 
 weather_df |> 
   ggplot(aes(x = date, y = tmax, color = name))+
   geom_point()
 
-ggsave("ggp_weather.pdf", ggp_weather, width = 8, height = 6)
+ggsave("plots/ggp_weather.pdf", ggp_weather, width = 8, height = 6)
 ```
 
     ## Warning: Removed 17 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
+
+Embedding plots
+
+``` r
+weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point()
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](vis_1_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->

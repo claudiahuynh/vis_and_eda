@@ -87,3 +87,78 @@ weather_df |>
   viridis::scale_color_viridis(discrete = TRUE)
 ```
 
+
+## Themes
+
+```{r}
+ggp_scatterplot =
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  labs(
+    title = "Temperature Scatterplot",
+    x = "Minimum Temperature (C)",
+    y = "Maximum Temperature (C)",
+    color = "Location",
+    caption = "Weather data taken from rnoaa package for 3 stations"
+  ) + 
+  scale_color_hue(h = c(10,400)) +
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+```{r}
+ggp_scatterplot +
+  theme(legend.position = "bottom")
+```
+
+Order matters. If you put theme bw after changing the legend, the graph will reset and the legend will be on the side.
+
+```{r}
+ggp_scatterplot +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+ggthemes has multiple built in theme options. 
+
+```{r}
+ggp_scatterplot + 
+  theme(legend.position = "bottom") +
+  ggthemes::theme_excel()
+```
+
+Learning assessment 
+```{r learning_assessment}
+
+  weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) +
+  geom_point(alpha = .3) +
+  geom_smooth(se = FALSE)+
+labs(
+    title = "Temperature across time",
+    x = "Date",
+    y = "Maximum temperature (C)",
+    color = "Location",
+    caption = "Maximum temperature by date at three locations"
+  ) +
+    viridis::scale_color_viridis(discrete = TRUE) + 
+  theme_minimal() + 
+  theme(legend.position = "bottom")
+  
+  
+```
+
+Extra bonus stuff in ggplot 
+
+Use different datasets in different `geoms`
+
+```{r}
+central_park_df = 
+  weather_df |> 
+  filter(name == "Cenral_Park_NY")
+
+molokai_df = 
+  weather_df |> 
+  filter(name == "Molokai_HI")
+```
+
