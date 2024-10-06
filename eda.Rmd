@@ -142,3 +142,123 @@ weather_df |>
 
 ```
 
+## grouped mutates
+Mutate keeps track of grouping information. Grouping can be invisible. Grouping should be used exclusively in EDA, not data cleaning 
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax
+  ) |> 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) +
+  geom_point()
+```
+
+window functions - find hottest/coldest days using min_rank or min_rank(desc)
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    temp_rank = min_rank(desc(tmax))
+  ) |> 
+  filter(temp_rank < 4)
+```
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  filter(min_rank(tmax)<4) |> 
+  arrange(tmax)
+```
+
+
+Take a look at lag function. Entire shifted over 1 and down 1. Can be handy to calculate the difference between consecutive values in the same variable (for exmaple, temperature difference between day 1 and day 2)
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    lagged_tmax = lag(tmax),
+    temp_change = tmax - lagged_tmax
+  ) |> 
+  filter(min_rank(temp_change)<3) 
+```
+
+How much day-to-day variation 
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  mutate(
+    lagged_tmax = lag(tmax),
+    temp_change = tmax - lagged_tmax
+  ) |> 
+  summarize(
+    sd_tmax_change = sd(temp_change, na.rm = TRUE)
+  )
+```
+
+## PULSE data 
+
+```{r}
+pulse_df =
+  read_sas("data/public_pulse_data.sas7bdat") |> 
+  janitor::clean_names() |> 
+  pivot_longer(
+    cols = bdi_score_bl:bdi_score_12m,
+    names_to = "visit",
+    values_to = "bdi_score",
+    names_prefix = "bdi_score_"
+  ) |> 
+  select(id, visit, everything()) |> 
+  mutate(visit = ifelse(visit == "bl", "00m",visit))
+
+pulse_df |> 
+  group_by(visit) |> 
+  summarize(
+    mean_score = mean(bdi_score, na.rm = TRUE),
+    median_score = median(bdi_score, na.rm = TRUE)
+  ) |> 
+  knitr::kable(digits = 1)
+
+```
+
+## FAS data
+
+```{r}
+pups_df = 
+  read_csv("data/FAS_pups.csv", na = c("", "NA", ".")) |> 
+  janitor::clean_names() |> 
+  mutate(
+    pd_ears = as.numeric(pd_ears)
+  ) |> 
+  pivot_longer(
+    cols = pd_ears:pd_walk,
+    names_to = "outcome",
+    values_to = "pn",
+    names_prefix = "pd_"
+  )
+
+litters_df = 
+  read_csv("data/FAS_litters.csv", na = c("", ".", "NA")) |> 
+  janitor::clean_names() |> 
+  separate(
+    group, into = c("dose", "treatment_day"), sep = 3
+  )
+   
+fas_df = 
+  left_join(pups_df, litters_df, by = "litter_number") 
+
+fas_df |> 
+  drop_na(dose) |> 
+  filter(outcome == "pivot") |> 
+  group_by(dose, treatment_day) |> 
+  summarize(mean_pivot = mean(pn, na.rm = TRUE)) |> 
+  pivot_wider(
+    names_from = treatment_day,
+    values_from = mean_pivot
+  ) |> 
+  knitr::kable(digits = 2)
+```
+
