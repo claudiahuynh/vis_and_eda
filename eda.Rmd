@@ -1,0 +1,108 @@
+---
+title: "EDA"
+author: "My An Huynh"
+date: "2024-10-01"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(patchwork)
+library(haven)
+```
+ 
+Import weather data 
+ 
+```{r weather}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = case_match(
+      id, 
+      "USW00094728" ~ "CentralPark_NY", 
+      "USW00022534" ~ "Molokai_HI",
+      "USS0023B17S" ~ "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month = floor_date(date, unit = "month")) |> 
+  select(name, id, everything())
+```
+
+Let's make some plots 
+```{r}
+weather_df |>  
+  ggplot(aes(x = prcp))+
+  geom_histogram()
+```
+
+
+```{r}
+weather_df |> 
+  filter(prcp >1000)
+```
+
+
+```{r}
+weather_df |> 
+  filter(tmax > 20, tmax < 30) |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) +
+  geom_point()
+  
+```
+
+
+## group_by 
+Tells you how many groups you have. It's adding a layer of structure at the top. 
+```{r}
+weather_df |> 
+  group_by(name, month)
+```
+
+Counting stuff. Group by name, then count how many observations per group using n_obs. Use n_distinct to count how many distinct months per group. 
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    n_obs = n(),
+    n_dist = n_distinct(month))
+```
+
+Count() function also works instead of summarize. 
+```{r}
+weather_df |> 
+  count(name)
+```
+
+
+# 2x2
+
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  filter(name != "Molokai_HI") |> 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold")
+  ) |> 
+  group_by(name, cold) |> 
+  summarize(count = n())
+```
+
+janitor::tabyl will give a 2x2. table as well 
+```{r}
+weather_df |> 
+  drop_na(tmax) |> 
+  filter(name != "Molokai_HI") |> 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold")
+  ) |> 
+  janitor::tabyl(name, cold)
+```
